@@ -1,0 +1,64 @@
+<?
+include_once("./db_con.php");
+
+//echo $m_name;
+//$m_name_conv = iconv("UTF-8","EUC-KR",$m_name);
+//$contents_conv = iconv("UTF-8","EUC-KR",$contents);
+
+$now_date = date("Ymd");
+
+//현재시간에서 -4분을 계산
+$now_time = date("His",strtotime("-4 minutes", time()));
+$regdt = $now_date.$now_time;
+
+
+
+$xmlList='<?xml version="1.0" encoding="utf-8" ?><root>';
+
+// DB 연결
+$connect = mysqli_connect($host_name,$user_name,$db_password,$db_name);
+
+
+// DB 선택
+mysqli_select_db($connect,$db_name) or die('DB 선택 실패');
+
+
+
+// 파라미터 가져오는 부분
+$um_id= $_REQUEST['um_id'];
+$um_cert_num= $_REQUEST['um_cert_num'];
+
+$que=" select * ";
+$que.=" from a_kms_sms_info ";
+$que.=" where um_id='".$um_id."' and um_cert_num='".$um_cert_num."' ";
+$que.=" and regdt >='".$regdt."' order by regdt desc limit 0,1";
+
+$data = mysqli_query($connect,$que);
+
+//echo $que."<hr>";
+
+//$numrows = mysqli_num_rows($connect,$que);
+
+// mysql 5.0 버젼일 경우
+//$total = mysql_affected_rows();
+
+// mysql 7.0일경우
+$total = mysqli_num_rows($data);
+
+//echo "total : ".$total."<hr>";
+
+ //xml 형태로 data 파싱
+if($data){
+	$xmlList.= '<item><command>Y</command>';
+
+}
+$xmlList.= '</item>';
+$xmlList.='</root>';
+
+//xml 형태로 출력
+echo $xmlList;
+
+ //접속 종료
+mysqli_close($connect); 
+
+?>

@@ -1,0 +1,47 @@
+<?
+
+include_once("./db_con.php");
+
+// DB 연결
+$connect = mysqli_connect($host_name, $user_name, $db_password, $db_name);
+
+// DB 선택
+mysqli_select_db($connect, $db_name) or die('DB 선택 실패');
+
+$now_date = date("Ymd");
+$now_time = date("His",time());
+$regdt = $now_date.$now_time;
+
+// 받아와야 하는 값
+$de_name =  $_REQUEST['de_name'];
+$de_version =  $_REQUEST['de_version'];
+$de_token =  $_REQUEST['de_token'];
+
+echo $de_name."//".$de_version."//".$de_token."<hr>";
+
+// SQL 쿼리문 작성
+$que = "insert into a_kms_um_devices( ";
+$que.= " de_name, de_version, de_token, regdt) ";
+$que.= " values('$de_name','$de_version','$de_token','$regdt')";
+
+// 값
+echo $que;
+
+// 쿼리문
+$data = mysqli_query($connect, $que);
+
+$xmlList='<?xml version="1.0" encoding="utf-8" ?><root><item>';
+
+if($data) {
+	$xmlList.='<command>Y</command>';
+} else {
+	$xmlList.='<command>N</command>';
+}
+
+$xmlList.='</item>';
+$xmlList.='</root>';
+
+// xml형태로 출력
+echo $xmlList;
+
+?>

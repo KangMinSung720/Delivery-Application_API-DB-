@@ -1,0 +1,7 @@
+<?
+// DB 정보 불러오기
+$host_name = "localhost";
+$user_name = "shingu403";
+$db_name = "shingu403";
+$db_password = "shingu403!";
+?>
