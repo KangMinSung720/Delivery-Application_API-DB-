@@ -1,0 +1,112 @@
+<?
+include_once("./db_con.php");
+
+//echo $m_name;
+//$m_name_conv = iconv("UTF-8","EUC-KR",$m_name);
+//$contents_conv = iconv("UTF-8","EUC-KR",$contents);
+
+$now_date = date("Ymd");
+$now_time = date("His",time());
+$regdt = $now_date.$now_time;
+
+
+// DB 연결
+$connect = mysqli_connect($host_name,$user_name,$db_password,$db_name);
+
+// DB 선택
+mysqli_select_db($connect,$db_name) or die('DB 선택 실패');
+
+// 파라미터 가져오는 부분
+$um_id = $_REQUEST['um_id'];
+$um_pass = $_REQUEST['um_pass'];
+$um_name = $_REQUEST['um_name'];
+$um_email = $_REQUEST['um_email'];
+$um_cartype = $_REQUEST['um_cartype'];
+
+// 회원정보 가입/ 수정 처리에 관한 변수처리
+$mod = $_REQUEST['mod'];
+
+//$appversion = $_POST['appversion'];
+//$appversion = $_GET['appversion'];
+//$devicename_conv = iconv("EUC-KR","UTF-8",$devicename);
+
+if($mod==1){
+	//회원정보 수정
+	//Sql 쿼리문 작성
+
+	$que = "update a_kms_user_member ";
+	$que.= "set um_pass='$um_pass', um_name='$um_name', um_email='$um_email', um_cartype='$um_cartype' ";
+	$que.= "where um_id='$um_id'";
+
+	//echo $que;
+
+	// 쿼리문 실행
+	$data = mysqli_query($connect,$que);
+
+	if($data) {
+		// 회원정보 수정 완료일 경우
+		$command_value = "Y";
+	}else{
+		$command_value = "N";
+	}
+
+} else{
+
+// 기존회원 확인
+$que = "select um_index from a_kms_user_member";
+$que.= " where um_id='$um_id'";
+
+//echo $que."<hr>";
+
+$data = mysqli_query($connect,$que);
+
+//$numrows = mysqli_num_rows($connect,$que);
+
+// mysql 5.0 버젼일 경우
+//$total = mysql_affected_rows();
+
+// mysql 7.0일경우
+$total = mysqli_num_rows($data);
+
+
+//echo "total count : ".$total."<hr>";
+
+// 회원 구분
+	if($total>0){
+		// 기존 회원일 경우
+		$command_value = "N";
+
+	}else{
+
+		// 신규 회원일 경우
+		$command_value = "Y";
+
+		// SQL 쿼리문 작성
+		$que = "INSERT INTO a_kms_user_member ( ";
+		$que.= "um_id, um_pass, um_name, um_email, um_cartype, regdt) ";
+		$que.= "VALUES ('$um_id', '$um_pass', '$um_name', '$um_email', '$um_cartype', '$regdt')";
+
+		echo $que;
+
+		// 쿼리문 실행
+		//$data = mysqli_query($connect,$que);
+	}
+}
+
+
+// xml 형태로 data 파싱
+
+$xmlList='<?xml version="1.0" encoding="utf-8" ?><root><item>';
+
+$xmlList.= '<command>'.$command_value.'</command>';
+
+$xmlList.= '</item>';
+$xmlList.='</root>';
+
+// xml 형태로 출력
+echo $xmlList;
+
+// 접속 종료
+//mysqli_close($connect); 
+
+?>

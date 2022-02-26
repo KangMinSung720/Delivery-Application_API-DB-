@@ -1,0 +1,49 @@
+<?
+include_once("./db_con.php");
+
+//echo $m_name;
+//$m_name_conv = iconv("UTF-8","EUC-KR",$m_name);
+//$contents_conv = iconv("UTF-8","EUC-KR",$contents);
+
+$now_date = date("Ymd");
+$now_time = date("His",time());
+$regdt = $now_date.$now_time;
+
+
+// DB 연결
+$connect = mysqli_connect($host_name,$user_name,$db_password,$db_name);
+
+// DB 선택
+mysqli_select_db($connect,$db_name) or die('DB 선택 실패');
+
+// 파라미터 가져오는 부분
+$um_id = $_REQUEST['um_id'];
+$um_name = $_REQUEST['um_name'];
+$com_content = $_REQUEST['com_content'];
+
+$que = "insert into a_kms_community( ";
+$que.= " um_id, um_name, com_content, com_img, regdt) ";
+$que.= " values('$um_id','$um_name','$com_content','$com_img','$regdt')";
+
+$data = mysqli_query($connect,$que);
+
+// xml 형태로 data 파싱
+
+$xmlList='<?xml version="1.0" encoding="utf-8" ?><root><item>';
+
+if($data) {
+	$xmlList.='<command>Y</command>';
+} else {
+	$xmlList.='<command>N</command>';
+}
+
+$xmlList.= '</item>';
+$xmlList.='</root>';
+
+// xml 형태로 출력
+echo $xmlList;
+
+// 접속 종료
+//mysqli_close($connect); 
+
+?>
